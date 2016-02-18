@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+description "{{ service_description }}"
+start on filesystem and started docker
+stop on runlevel [!2345]
+respawn
+setuid {{ service_user_name }}
+setgid {{ service_group_name }}
+chdir {{ service_dir }}
+script
+# Wait for docker to finish starting up first.
+FILE=/var/run/docker.sock
+while [ ! -e $FILE ] ; do
+inotifywait -t 2 -e create $(dirname $FILE)
+done
+/usr/local/bin/docker-compose up
+end script
+pre-stop script
+/usr/local/bin/docker-compose stop
+end script

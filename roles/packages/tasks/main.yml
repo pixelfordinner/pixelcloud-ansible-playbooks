@@ -1,0 +1,16 @@
+---
+- name: Update APT package cache
+  action: apt update_cache=yes
+
+- name: Run apt-get upgrade
+  action: apt upgrade=safe
+
+- name: Install desired packages
+  action: apt pkg={{ item }} state=installed
+  with_items:
+    - htop
+    - tree
+    - jq
+    - fail2ban
+    - git
+    - python-pip

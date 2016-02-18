@@ -1,0 +1,14 @@
+---
+- hosts: droplet
+  remote_user: root
+  roles:
+    - locale
+    - users
+    - packages
+    - swap
+    - updates
+    - firewall
+    - mailgun
+    - logwatch
+    - structure
+    - ssh

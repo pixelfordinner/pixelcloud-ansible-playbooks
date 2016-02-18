@@ -1,0 +1,12 @@
+---
+- name: Setup ufw 22/tcp (SSH)
+  action: shell ufw allow 22/tcp
+
+- name: Setup ufw 80/tcp (HTTP)
+  action: shell ufw allow 80/tcp
+
+- name: Setup ufw 443/tcp (HTTPS)
+  action: shell ufw allow 443/tcp
+
+- name: Enable ufw
+  action: shell echo 'y' | ufw enable

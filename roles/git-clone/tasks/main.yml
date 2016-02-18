@@ -1,0 +1,5 @@
+---
+- name: Clone repository ("{{ clone_repository }}")
+  become: yes
+  become_user: "{{ clone_user }}"
+  git: repo="{{ clone_repository }}" dest="{{ clone_directory }}"

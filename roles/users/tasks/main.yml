@@ -1,0 +1,32 @@
+---
+- name: Add sysadmin user to admin and docker groups
+  user: name={{ user_sysadmin_name }} groups="{{ user_admin_name }},docker" append=yes
+
+- name: Add admin user to docker group
+  user: name={{ user_admin_name }} groups=docker append=yes
+
+- name: Change sysadmin user directory permissions to 750
+  file: path=/home/{{ user_sysadmin_name }} state=directory mode=750
+
+- name: Change admin user directory permissions to 750
+  file: path=/home/{{ user_admin_name }} state=directory mode=750
+
+- name: Add or udpate authorized key
+  action: authorized_key user={{ user_sysadmin_name }} key="{{ lookup('file', user_sysadmin_idrsa) }}"
+  when: user_sysadmin_idrsa is defined
+
+- name: Add or udpate authorized key
+  action: authorized_key user={{ user_admin_name }} key="{{ lookup('file', user_admin_idrsa) }}"
+  when: user_admin_idrsa is defined
+
+- name: Add sysadmin user to sudoers (Full)
+  action: lineinfile dest=/etc/sudoers regexp="{{ user_sysadmin_name }} ALL" line="{{ user_sysadmin_name }} ALL=(ALL) ALL" state=present
+
+- name: Add admin user to sudoers (Start/Restart/Stop)
+  action: 'lineinfile dest=/etc/sudoers regexp="{{ user_admin_name }} ALL=(root)" line="{{ user_admin_name }} ALL=(root) NOPASSWD: /sbin/start, /sbin/restart, /sbin/stop" state=present'
+
+- name: Remove sudo group rights
+  action: lineinfile dest=/etc/sudoers regexp="^%sudo" state=absent
+
+- name: Remove admin group rights
+  action: lineinfile dest=/etc/sudoers regexp="^%admin" state=absent

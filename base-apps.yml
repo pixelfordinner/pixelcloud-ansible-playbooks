@@ -1,0 +1,17 @@
+---
+- hosts: droplet
+  remote_user: "{{ user_sysadmin_name }}"
+  roles:
+    - role: git-clone
+      clone_repository: "https://github.com/pixelfordinner/pixelcloud-docker-apps.git"
+      clone_directory: "/opt/apps/pixelcloud"
+      clone_user: "{{ user_admin_name }}"
+    - role: ssl
+      become: yes
+      become_user: "{{ user_admin_name }}"
+    - role: service
+      service_user_name: "{{ user_admin_name }}"
+      service_group_name: "{{ group_www_name }}"
+      service_name: "app-pixelcloud-nginx_proxy"
+      service_dir: "/opt/apps/pixelcloud/nginx-proxy"
+      service_description: "Watches docker containers that contains sites and automatically adds them to reverse proxy."

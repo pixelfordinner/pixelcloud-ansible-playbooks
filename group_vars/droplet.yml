@@ -1,0 +1,22 @@
+---
+locale: "en_US.UTF-8"
+language: "en_US:en"
+timezone: "America/New_York"
+ntp_server: "us.pool.ntp.org"
+
+user_sysadmin_name: "sysadmin"
+user_sysadmin_idrsa: "~/.ssh/id_rsa.pub"
+user_admin_name: "admin"
+user_admin_idrsa: "~/.ssh/id_rsa.pub"
+group_www_name: "www-data"
+
+swapfile_size: "1GB"
+swapfile_swappiness: 10
+swapfile_location: "/mnt/swapfile"
+swapfile_use_dd: false
+swapfile_vfs_cache_pressure: 50
+
+logwatch_email:
+mailgun_username:
+mailgun_password:
+pixelcloud_apps_repository: "https://github.com/pixelfordinner/pixelcloud-docker-apps.git"

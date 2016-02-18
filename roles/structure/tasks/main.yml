@@ -1,0 +1,6 @@
+---
+- name: Create directory structure
+- file: path={{ item.path }} state=directory mode=0750 owner={{ user_admin_name }} group={{ user_admin_name }}
+  with_items:
+    - { path: '/opt/apps' }
+    - { path: '/opt/sites' }
