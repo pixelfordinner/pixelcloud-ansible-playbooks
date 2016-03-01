@@ -1,0 +1,52 @@
+---
+- hosts: droplet
+  remote_user: "{{ user_sysadmin_name }}"
+  vars_prompt:
+    - name: "site_req_php"
+      prompt: "Will the site require PHP? [y/n]"
+      default: "y"
+      private: no
+    - name: "site_req_mysql"
+      when: site_req_php == "y"
+      prompt: "Will the site require MySQL? [y/n]"
+      default: "y"
+      private: no
+    - name: "site_req_wordpress"
+      when: site_req_mysql == "y" and site_req_php == "y"
+      prompt: "Will the site require Wordpress? [y/n]"
+      default: "y"
+      private: no
+    - name: "site_client_name"
+      prompt: "Client name (lowercase, no spaces, no accents)"
+      private: no
+    - name: "site_site_name"
+      prompt: "Site name (lowercase, no spaces, no accents)"
+      private: no
+    - name: "site_site_fqdn"
+      prompt: "Site FQDN (i.e: subdomain.domain.tld)"
+      private: no
+    - name: "site_letsencrypt_email"
+      prompt: "E-mail address (let's encrypt)"
+      default: "webmaster@pixelfordinner.com"
+      private: no
+    - name: "site_environment_name"
+      prompt: "Environment name (local|staging|production)"
+      default: "staging"
+      private: no
+    - name: "site_mysql_root_password"
+      prompt: "MySQL root password"
+      private: yes
+      when: site_req_mysql == "y"
+    - name: "site_mysql_password"
+      prompt: "MySQL password"
+      private: yes
+      when: site_req_mysql == "y"
+  roles:
+    - site
+    - role: service
+      service_user_name: "{{ user_admin_name }}"
+      service_group_name: "{{ group_www_name }}"
+      service_name: "site-{{ site_client_name }}-{{ site_site_fqdn|regex_replace('\\.', '_') }}"
+      service_dir: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}"
+      service_description: "Starts containers for {{ site_site_fqdn }} ({{ site_client_name }})."
+    - site-wordpress

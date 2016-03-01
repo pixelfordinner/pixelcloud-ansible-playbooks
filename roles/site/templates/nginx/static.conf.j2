@@ -1,0 +1,12 @@
+server {
+    listen                  80 deferred;
+    listen                  [::]:80 deferred;
+    server_name             {{ site_site_fqdn }};
+    root                    /opt/www/htdocs;
+
+    # Enable Security
+    include                 boilerplate/enable/security.conf;
+
+    # Site extras
+    include                 /opt/www/conf.d/*.conf;
+}

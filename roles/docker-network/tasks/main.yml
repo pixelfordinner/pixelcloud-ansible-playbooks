@@ -1,0 +1,6 @@
+---
+- name: "Register Docker {{ docker_network_driver }} network {{ docker_network_name }}"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  ignore_errors: yes
+  command: "/usr/bin/docker network -d {{ docker_network_driver }} {{ docker_network_name }}"

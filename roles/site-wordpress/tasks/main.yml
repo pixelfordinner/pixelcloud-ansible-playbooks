@@ -1,0 +1,78 @@
+---
+- name: "Create wp-cli configuration file"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  template:
+    src: wordpress/wp-cli.yml.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/wp-cli.yml"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+- name: "Generate local configuration file"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  template:
+    src: wordpress/local-config.php.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/local-config.php"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+- name: "Generate index file"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  template:
+    src: wordpress/index.php.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/htdocs/index.php"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+- name: "Generate Wordpress config file"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  template:
+    src: wordpress/wp-config.php.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/htdocs/wp-config.php"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+- name: "Get salts from Wordpress API"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  get_url:
+    url: "https://api.wordpress.org/secret-key/1.1/salt/"
+    dest: /tmp/wordpress.salts
+    force: yes
+    mode: 0600
+
+- name: "Register Wordpress salts"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  shell: "/bin/cat /tmp/wordpress.salts >> {{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/local-config.php"
+
+- name: "Download Wordpress"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  command: "/usr/bin/docker exec -it {{ site_site_name }}-php wp core download"
+
+- name: "Copy content directory"
+  become: yes
+  become_user: "root"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  command: "/bin/cp -r {{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/htdocs/{{ site_wordpress_base_path }}/wp-content {{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/htdocs/{{ site_wordpress_content_path }}"
+
+- name: "Apply content directory permissions"
+  become: yes
+  become_user: "root"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  command: "/bin/chown -R {{ group_www_name }}:{{ group_www_name }} {{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/htdocs/{{ site_wordpress_content_path }}"

@@ -1,0 +1,142 @@
+---
+- name: Create base directory structure
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  file: path={{ item.path }} state=directory mode=0771 owner={{ user_admin_name }} group={{ user_admin_name }}
+  with_items:
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}" }
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}" }
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes" }
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/conf.d" }
+
+- name: Create web directory structure
+  become: yes
+  become_user: "root"
+  file: path={{ item.path }} state=directory mode=0770 owner={{ user_admin_name }} group={{ group_www_name }}
+  with_items:
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www" }
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/conf.d" }
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/dumps" }
+    - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/htdocs" }
+
+# Static
+
+- name: "Generate compose file for static website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "n" and site_req_php == "n"
+  template:
+    src: docker/static.yml.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/docker-compose.yml"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0660
+
+- name: "Generate nginx configuration for static website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "n" and site_req_php == "n"
+  template:
+    src: default.conf.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/conf.d/default.conf"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+# PHP
+
+- name: "Generate compose file for php website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "n" and site_req_php == "y"
+  template:
+    src: docker/php.yml.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/docker-compose.yml"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0660
+
+- name: "Generate nginx configuration for php website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "n" and site_req_php == "y"
+  template:
+    src: nginx/php.conf.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/conf.d/default.conf"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+# PHP + MySQL
+
+- name: "Generate compose file for php + mysql website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "n"
+  template:
+    src: docker/php-mysql.yml.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/docker-compose.yml"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0660
+
+- name: "Generate nginx configuration for php + mysql website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "n"
+  template:
+    src: nginx/php.conf.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/conf.d/default.conf"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+# PHP + MySQL + Wordpress
+
+- name: "Generate compose file for php + mysql + wordpress website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  template:
+    src: docker/php-mysql-wordpress.yml.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/docker-compose.yml"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0660
+
+- name: "Generate nginx configuration for php + wordpress website"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_mysql == "y" and site_req_php == "y" and site_req_wordpress == "y"
+  template:
+    src: nginx/php-wordpress.conf.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/conf.d/default.conf"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664
+
+# htaccess
+
+- name: "Generate htpasswd file"
+  become: yes
+  become_user: "root"
+  when: site_req_htaccess == "y"
+  htpasswd:
+    path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/conf.d/htpasswd"
+    name: "{{ site_htpasswd_user }}"
+    password: "{{ site_htpasswd_password }}"
+    owner: "{{ user_admin_name }}"
+    group: "{{ group_www_name }}"
+    state: "present"
+    mode: 0640
+
+- name: "Generate htaccess file"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  when: site_req_htaccess == "y"
+  template:
+    src: nginx/htaccess.conf.j2
+    dest: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/conf.d/htaccess.conf"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0664

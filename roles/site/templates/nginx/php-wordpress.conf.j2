@@ -1,0 +1,21 @@
+server {
+    listen                  80 deferred;
+    listen                  [::]:80 deferred;
+    server_name             {{ site_site_fqdn }};
+    root                    /opt/www/htdocs;
+
+    # Enable Security
+    include                 boilerplate/enable/security.conf;
+
+    # Enable PHP
+    set $php_value          "sendmail_from=no-reply@local.dev
+                             opcache.validate_timestamps = On
+                             opcache.revalidate_freq = 1";
+    include                 boilerplate/upstream/php.conf;
+
+    # Enable Wordpress
+    include                 boilerplate/enable/wordpress.conf;
+
+    # Site extras
+    include                 /opt/www/conf.d/*.conf;
+}

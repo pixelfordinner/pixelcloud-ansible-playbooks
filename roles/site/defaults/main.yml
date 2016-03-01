@@ -1,0 +1,7 @@
+---
+site_mysql_db_alias: db
+
+site_req_htaccess: "n"
+site_htpasswd_user:
+site_htpasswd_realm:
+site_htpasswd_password:

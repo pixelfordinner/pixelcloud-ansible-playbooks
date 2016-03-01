@@ -1,0 +1,9 @@
+---
+site_mysql_db_alias: db
+
+site_wordpress_base_path: "cms"
+site_wordpress_content_path: "content"
+site_wordpress_memory_limit: "64M"
+site_wordpress_post_revisions: 5
+site_wordpress_fs_method: "direct"
+site_wordpress_debug: "true"

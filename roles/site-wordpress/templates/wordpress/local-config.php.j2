@@ -1,0 +1,46 @@
+<?php
+// {{ ansible_managed }}
+
+// Settings
+
+define('WP_DEBUG', {{ site_wordpress_debug }});
+define('WP_MEMORY_LIMIT', '{{ site_wordpress_memory_limit }}');
+define('FS_METHOD', '{{ site_wordpress_fs_method }}');
+define('WP_POST_REVISIONS', {{ site_wordpress_post_revisions }});
+
+define('WP_SITEURL', 'https://' . $_SERVER['SERVER_NAME'] . '/{{ site_wordpress_base_path }}');
+define('WP_HOME',    'https://' . $_SERVER['SERVER_NAME']);
+define('WP_CONTENT_URL', 'https://' . $_SERVER['SERVER_NAME'] . '/{{ site_wordpress_content_path }}');
+
+// Database
+
+define('DB_NAME', '{{ site_site_name|lower|regex_replace('-|\\.|_', '') }}');
+define('DB_USER', '{{ site_site_name|lower|regex_replace('-|\\.|_', '') }}');
+define('DB_PASSWORD', '{{ site_mysql_password }}');
+define('DB_HOST', '{{ site_mysql_db_alias }}');
+$table_prefix  = '{{ site_site_name[0:2]|lower }}_';
+
+// Security
+
+define('FORCE_SSL_LOGIN', true);
+define('FORCE_SSL_ADMIN', true);
+define('DISALLOW_FILE_EDIT', true);
+
+// Reverse-proxy
+
+if (!empty($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+}
+
+if (!empty($_SERVER['HTTP_X_REAL_IP']) &&
+    (filter_var($_SERVER['HTTP_X_REAL_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== FALSE ||
+    filter_var($_SERVER['HTTP_X_REAL_IP'], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== FALSE)) {
+    $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_REAL_IP'];
+}
+
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+// Salts
+

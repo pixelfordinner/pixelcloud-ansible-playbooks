@@ -14,3 +14,4 @@
     - fail2ban
     - git
     - python-pip
+    - python-passlib

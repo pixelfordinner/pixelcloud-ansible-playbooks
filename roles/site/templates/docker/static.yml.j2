@@ -1,0 +1,21 @@
+version: "2"
+
+services:
+  webserver-nginx:
+    image: pixelfordinner/nginx
+    container_name: {{ site_site_name }}-nginx
+    volumes:
+      - ./volumes/conf.d:/etc/nginx/conf.d:ro
+      - ./volumes/www:/opt/www/:ro
+    environment:
+      - VIRTUAL_HOST={{ site_site_fqdn }}
+      - WWW=no-www
+      - LETSENCRYPT_HOST={{ site_site_fqdn }}
+      - LETSENCRYPT_EMAIL={{ site_letsencrypt_email }}
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:
+    external:
+      name: {{ app_nginx_proxy_network_name }}
