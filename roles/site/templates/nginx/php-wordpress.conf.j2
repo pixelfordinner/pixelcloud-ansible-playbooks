@@ -1,6 +1,6 @@
 server {
-    listen                  80 deferred;
-    listen                  [::]:80 deferred;
+    listen                  {{ app_nginx_proxy_listen_port }} deferred;
+    listen                  [::]:{{ app_nginx_proxy_listen_port }} deferred;
     server_name             {{ site_site_fqdn }};
     root                    /opt/www/htdocs;
 

@@ -34,5 +34,6 @@ mailgun_password:
 pixelcloud_apps_repository: "https://github.com/pixelfordinner/pixelcloud-docker-apps.git"
 root_dir_apps: "/opt/apps"
 root_dir_sites: "/opt/sites"
-app_nginx_proxy_network_driver: bridge
-app_nginx_proxy_network_name: nginx-proxy
+app_nginx_proxy_network_driver: "bridge"
+app_nginx_proxy_network_name: "nginx-proxy"
+app_nginx_proxy_listen_port: 80

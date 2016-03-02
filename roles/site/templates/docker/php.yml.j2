@@ -2,31 +2,33 @@ version: "2"
 
 services:
   webserver-nginx:
-    image: pixelfordinner/nginx
-    container_name: {{ site_site_name }}-nginx
+    image: "pixelfordinner/nginx"
+    container_name: "{{ site_site_name }}-nginx"
     volumes:
-      - ./volumes/conf.d:/etc/nginx/conf.d:ro
-      - ./volumes/www:/opt/www/:ro
+      - "./volumes/conf.d:/etc/nginx/conf.d:ro"
+      - "./volumes/www:/opt/www/:ro"
     environment:
-      - VIRTUAL_HOST={{ site_site_fqdn }}
-      - WWW=no-www
-      - LETSENCRYPT_HOST={{ site_site_fqdn }}
-      - LETSENCRYPT_EMAIL={{ site_letsencrypt_email }}
+      - "VIRTUAL_HOST={{ site_site_fqdn }}"
+      - "VIRTUAL_PORT={{ app_nginx_proxy_listen_port }}"
+      - "VIRTUAL_NETWORK={{ app_nginx_proxy_network_name }}"
+      - "LETSENCRYPT_HOST={{ site_site_fqdn }}"
+      - "LETSENCRYPT_EMAIL={{ site_letsencrypt_email }}"
+      - "WWW=no-www"
     networks:
-      - proxy-tier
-      - back-tier
+      - "proxy-tier"
+      - "back-tier"
   upstream-php:
-    image: pixelfordinner/php
-    container_name: {{ site_site_name }}-php
+    image: "pixelfordinner/php"
+    container_name: "{{ site_site_name }}-php"
     volumes:
-      - ./volumes/www:/opt/www/
-    hostname: {{ site_environment_name }}
+      - "./volumes/www:/opt/www/"
+    hostname: "{{ site_environment_name }}"
     networks:
-      - back-tier
+      - "back-tier"
 
 networks:
   proxy-tier:
     external:
-      name: {{ app_nginx_proxy_network_name }}
+      name: "{{ app_nginx_proxy_network_name }}"
   back-tier:
-    driver: bridge
+    driver: "bridge"
