@@ -8,9 +8,15 @@ server {
     include                 boilerplate/enable/security.conf;
 
     # Enable PHP
-    set $php_value          "sendmail_from=no-reply@local.dev
+    set $php_value          "sendmail_from=no-reply@{{ site_site_fqdn }}
+{% if site_environment_name == "prod" %}
+                             opcache.validate_timestamps = Off
+                             opcache.revalidate_freq = 0";
+{% else %}
                              opcache.validate_timestamps = On
                              opcache.revalidate_freq = 1";
+{% endif %}
+
     include                 boilerplate/upstream/php.conf;
 
     # Enable Wordpress
