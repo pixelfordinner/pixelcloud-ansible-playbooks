@@ -42,7 +42,7 @@
       private: yes
       when: site_req_mysql == "y"
   roles:
-    - site
+    - site-create
     - role: service
       service_user_name: "{{ user_admin_name }}"
       service_group_name: "{{ group_www_name }}"

@@ -1,0 +1,15 @@
+---
+- hosts: droplet
+  remote_user: "{{ user_sysadmin_name }}"
+  vars_prompt:
+    - name: "site_client_name"
+      prompt: "Client name (lowercase, no spaces, no accents)"
+      private: no
+    - name: "site_site_name"
+      prompt: "Site name (lowercase, no spaces, no accents)"
+      private: no
+    - name: "site_site_fqdn"
+      prompt: "Site FQDN (i.e: subdomain.domain.tld)"
+      private: no
+  roles:
+    - site-delete

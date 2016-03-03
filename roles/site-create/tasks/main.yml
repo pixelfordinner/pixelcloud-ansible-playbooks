@@ -2,7 +2,12 @@
 - name: Create base directory structure
   become: yes
   become_user: "{{ user_admin_name }}"
-  file: path={{ item.path }} state=directory mode=0771 owner={{ user_admin_name }} group={{ user_admin_name }}
+  file:
+    path: "{{ item.path }}"
+    state: "directory"
+    owner: "{{ user_admin_name }}"
+    group: "{{ user_admin_name }}"
+    mode: 0771
   with_items:
     - { path: "{{ root_dir_sites }}/{{ site_client_name}}" }
     - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}" }
@@ -12,7 +17,12 @@
 - name: Create web directory structure
   become: yes
   become_user: "root"
-  file: path={{ item.path }} state=directory mode=0770 owner={{ user_admin_name }} group={{ group_www_name }}
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ user_admin_name }}"
+    group: "{{ group_www_name }}"
+    mode: 0770
   with_items:
     - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www" }
     - { path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}/volumes/www/conf.d" }

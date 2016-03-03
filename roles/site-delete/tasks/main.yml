@@ -1,0 +1,28 @@
+---
+- name: "Stop service site-{{ site_client_name }}-{{ site_site_fqdn|regex_replace('\\.', '_') }}"
+  become: yes
+  become_user: "root"
+  ignore_errors: yes
+  service: name="site-{{ site_client_name }}-{{ site_site_fqdn|regex_replace('\\.', '_') }}" state=stopped
+
+- name: "Delete service file"
+  become: yes
+  become_user: "root"
+  ignore_errors: yes
+  file:
+    path: "/etc/init/site-{{ site_client_name }}-{{ site_site_fqdn|regex_replace('\\.', '_') }}.conf"
+    state: "absent"
+
+- name: "Shutting down site and removing all data volumes"
+  become: yes
+  become_user: "{{ user_admin_name }}"
+  shell: "docker-compose down -v && docker-compose rm -vf"
+  args:
+    chdir: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}"
+
+- name: "Delete all files"
+  become: yes
+  become_user: "root"
+  file:
+    path: "{{ root_dir_sites }}/{{ site_client_name}}/{{ site_site_fqdn }}"
+    state: "absent"
